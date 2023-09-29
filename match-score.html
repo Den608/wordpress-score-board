@@ -1,0 +1,96 @@
+<style>
+    .table-container {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 80%;
+        margin: 0px auto 0px auto;
+        border: 1px solid black;
+        border-radius: 12px 12px 0px 0px;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+    }
+
+    thead {
+        background-color: black;
+        color: white;
+    }
+
+    td {
+        padding: 12px;
+    }
+
+    tbody>tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+</style>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <td>Teams</td>
+                <td>M</td>
+                <td>W</td>
+                <td>L</td>
+                <td>T</td>
+                <td>N\/R</td>
+                <td>PT</td>
+                <td>NRR</td>
+                <td>Series</td>
+                <td>Next</td>
+                <td>For</td>
+                <td>Against</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="12"> No Data to Display... </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    /*if (urlParams.has('e_match_id')) {*/
+    const e_match_id = urlParams.get('e_match_id');
+    console.log(e_match_id);
+    /*}*/
+    function fetchData() {
+        fetch(`https://score.sportsunfold.com/api/match/${e_match_id}/points-table`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const table_body = document.querySelector('tbody');
+                table_body.innerHTML =
+
+                    data.data.tab_data.group.map(group_item => {
+                        const group_content =
+                            group_item.stats.map(team_row => {
+                                const html_content = `
+                                    <tr>
+                                        <td>${team_row["Teams"]}</td>
+                                        <td>${team_row["M"]}</td>
+                                        <td>${team_row["W"]}</td>
+                                        <td>${team_row["L"]}</td>
+                                        <td>${team_row["T"]}</td>
+                                        <td>${team_row["N/R"]}</td>
+                                        <td>${team_row["PT"]}</td>
+                                        <td>${team_row["NRR"]}</td>
+                                        <td>${team_row["Series"]}</td>
+                                        <td>${team_row["Next"]}</td>
+                                        <td>${team_row["For"]}</td>
+                                        <td>${team_row["Against"]}</td>
+                                    </tr>
+                                `
+                                return html_content;
+                            }).join(' ');
+                        return group_content;
+                    }).join('<tr><td colspan="12"></td></tr>').replace(/null/g, 'Not Available');
+            });
+    }
+
+    fetchData();
+    setInterval(fetchData, 3000);
+</script>

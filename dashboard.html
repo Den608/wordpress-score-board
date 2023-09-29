@@ -1,0 +1,193 @@
+<style>
+    @media only screen and (max-width: 1024px) {
+        .league-wrap {
+            max-width: 400px;
+        }
+        .match-row {
+            width: 300px;
+        }
+        .match-wrap-container {
+            min-width: 300px;
+        }
+        .match-wrap {
+            flex-direction: column;
+        }
+    }
+
+    @media only screen and (min-width: 1024px) {
+        .league-wrap {
+            max-width: 1000px;
+        }
+        .match-row {
+            width: 600px;
+        }
+        .match-wrap-container {
+            min-width: 600px;
+        }
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0
+    }
+
+    .league-wrap {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .league-title {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .league-head-wrap {
+        display: flex;
+        gap: 60px;
+        justify-content: start;
+        justify-items: center;
+    }
+
+    .match-wrap {
+        cursor: pointer;
+        justify-content: space-between;
+        display: flex;
+        gap: 20px;
+        border-radius: 10px;
+        background-color: #efefef;
+        padding: 16px;
+        margin: 12px 0px 12px 0px;
+    }
+    .match-wrap:hover{
+        background-color: #e0e0e0;
+        outline: green dashed 1px;
+        transition: all ease-in-out 500ms;
+    }
+    .match-wrap:active{
+        transition: all ease-in-out 500ms;
+        transform: scale(1.01,1.01);
+    }
+
+    .match-wrap-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .match-wrap-container div {
+        padding: 4px;
+    }
+
+    .match-wrap-status {
+        /*background-color: #009900;
+        color:white;*/
+        padding: 20px;
+        border-radius: 20px;
+        flex-grow: 1;
+        text-align: center;
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+        justify-items: center;
+        align-items: center;
+    }
+
+    .match-wrap-status>span:first-of-type {
+        min-width: 100px;
+        background-color: #080;
+        padding: 12px;
+        border-radius: 8px;
+        color: white;
+    }
+
+    .match-row {
+        align-items: center;
+    }
+
+    .grid-cols-12 {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .col-span-2 {
+        grid-column: span 2 / span 2;
+    }
+
+    .col-span-3 {
+        grid-column: span 3 / span 3;
+    }
+
+    .col-span-4 {
+        grid-column: span 4 / span 4;
+    }
+
+    table {
+        color: red;
+        border-spacing: 0;
+    }
+    a{
+        text-decoration: none;
+        color:black;
+    }
+</style>
+<div id="api-root"></div>
+<script>
+    function fetchData() {
+        fetch('https://score.sportsunfold.com/api/dashboard')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const apiBoard = document.querySelector('#api-root');
+                apiBoard.innerHTML =
+
+                    Object.keys(data.data.series).filter(item => item !== "all_matches").map(league_name => {
+
+                        const matches_content = `
+                        <div class="league-wrap">
+                            <div class="league-head-wrap">
+                                <h3 class="league-title">${league_name}</h3>
+                            </div>
+                            
+                        ` + data.data.series[league_name].map(match => {
+
+                            const match_content = `<a href="https://localhost/wordpress/?page_id=1484&e_match_id=${match.e_match_id}"><div class="match-wrap">
+                                                        <div class="match-wrap-container">` +
+                                match.team.map(team => {
+                                    const team_content = `
+                                                        <div class="match-row grid-cols-12">
+                                                            <img class="col-span-2" width="40px" height="40px"
+                                                            src="${team.flag}" onerror="this.src='https://localhost/wordpress/wp-content/uploads/2023/09/30581516_table_flag_left_side_45-fotor-bg-remover-2023092991440-1.png';" />
+                                                            <div class="col-span-4">${team.name}</div>
+                                                            <div class="col-span-3">${team.score}</div>
+                                                            <div class="col-span-3">${team.score_text}</div>
+                                                        </div>
+                                                    
+                                                `
+                                    return team_content;
+                                }).join(' ') + `
+                                    </div>
+                                    <div class="match-wrap-status">
+                                        <span>${match.status}</span>
+                                        <span>${match.status_text}</span>                        
+                                    </div>
+                                </div></a>
+                                `
+                            return match_content;
+                        }).join(' ') + `
+                        </div>
+                    
+                        `
+
+                        return matches_content;
+
+                    }).join(' ').replace(/null/g, 'Not Available');
+            });
+    }
+
+    fetchData();
+    setInterval(fetchData, 3000);
+</script>
